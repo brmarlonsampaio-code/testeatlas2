@@ -1,154 +1,621 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GlobStory.it</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="script.js" defer></script>
-    <!-- Matomo -->
-    <script>
-      var _paq = window._paq = window._paq || [];
-      /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-      _paq.push(['trackPageView']);
-      _paq.push(['enableLinkTracking']);
-      (function() {
-        var u="//matomo.9minuti.it/";
-        _paq.push(['setTrackerUrl', u+'matomo.php']);
-        _paq.push(['setSiteId', '6']);
-        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-      })();
-    </script>
-    <!-- End Matomo Code -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GlobStory + Atlas — Portos no Mapa</title>
+  <link href="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet">
+  <script src="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; width:100%; overflow:hidden; font-family:'Segoe UI',system-ui,sans-serif; background:#0f172a; color:#e2e8f0; }
+    #app { display:flex; flex-direction:column; height:100vh; height:100dvh; }
+
+    /* TOPBAR */
+    .topbar {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:8px 12px; height:56px; background:#1e293b; border-bottom:1px solid #334155;
+      gap:8px; z-index:100; flex-shrink:0;
+    }
+    .topbar-logo { font-weight:800; font-size:1.05rem; color:#38bdf8; display:flex; align-items:center; gap:6px; text-decoration:none; }
+    .year-controls { display:flex; align-items:center; gap:4px; }
+    .year-controls button {
+      padding:6px 10px; border-radius:6px; border:1px solid #475569; background:#334155; color:#e2e8f0;
+      font-size:0.8rem; cursor:pointer; transition:0.2s;
+    }
+    .year-controls button:hover { background:#475569; border-color:#38bdf8; }
+    #yearInput {
+      width:80px; padding:6px; text-align:center; font-size:1rem; font-weight:700;
+      border:1px solid #475569; border-radius:6px; background:#0f172a; color:#38bdf8;
+    }
+    .search-box { position:relative; flex-shrink:1; min-width:100px; max-width:200px; }
+    .search-box i { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:0.75rem; }
+    #searchInput { width:100%; padding:6px 10px 6px 28px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#e2e8f0; font-size:0.8rem; }
+
+    /* MAIN */
+    .main-area { display:flex; flex:1; overflow:hidden; position:relative; }
+    #map { flex:1; height:100%; background:#0f172a; }
+
+    /* SIDEBAR */
+    #sidebar {
+      width:340px; background:#1e293b; border-left:1px solid #334155;
+      display:flex; flex-direction:column; overflow:hidden; transition:0.3s;
+    }
+    .sidebar-header {
+      padding:10px 12px; border-bottom:1px solid #334155; display:flex;
+      justify-content:space-between; align-items:center; font-size:0.75rem; color:#94a3b8;
+    }
+    .sidebar-scroll { flex:1; overflow-y:auto; padding:12px; }
+    .sidebar-scroll::-webkit-scrollbar { width:6px; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background:#475569; border-radius:4px; }
+    .filter-label { font-size:0.65rem; text-transform:uppercase; color:#94a3b8; font-weight:600; margin-bottom:4px; display:block; }
+    .filter-chips { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
+    .chip {
+      padding:3px 10px; border-radius:12px; border:1px solid #475569; background:#334155;
+      color:#cbd5e1; font-size:0.7rem; cursor:pointer; transition:0.2s; user-select:none;
+    }
+    .chip:hover { border-color:#38bdf8; }
+    .chip.active { background:#38bdf8; color:#0f172a; border-color:#38bdf8; font-weight:600; }
+    .range-row { display:flex; gap:6px; align-items:center; margin-bottom:10px; }
+    .range-row input { width:70px; padding:4px 6px; border-radius:4px; border:1px solid #475569; background:#0f172a; color:#e2e8f0; text-align:center; font-size:0.75rem; }
+    .section-title { font-size:0.75rem; font-weight:600; color:#38bdf8; margin:12px 0 6px; display:flex; justify-content:space-between; align-items:center; }
+    .cards-list { display:flex; flex-direction:column; gap:6px; }
+    .card {
+      display:flex; gap:8px; padding:8px; background:#334155; border-radius:8px;
+      border-left:3px solid var(--c,#38bdf8); cursor:pointer; transition:0.2s;
+    }
+    .card:hover { background:#475569; transform:translateX(2px); }
+    .card-thumb { width:48px; height:48px; border-radius:4px; background:#1e293b; flex-shrink:0; overflow:hidden; }
+    .card-thumb img { width:100%; height:100%; object-fit:cover; }
+    .card-body { flex:1; min-width:0; }
+    .card-year { font-size:0.6rem; color:#38bdf8; font-weight:600; }
+    .card-title { font-size:0.8rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .card-sub { font-size:0.65rem; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .card-desc { font-size:0.6rem; color:#64748b; margin-top:2px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+    /* POPUP CUSTOMIZADO */
+    .ohm-popup .maplibregl-popup-content {
+      background:#1e293b; color:#e2e8f0; border:1px solid #334155; border-radius:8px;
+      padding:10px; font-family:'Segoe UI',system-ui,sans-serif; font-size:0.8rem; max-width:220px;
+    }
+    .ohm-popup .maplibregl-popup-tip { border-top-color:#1e293b; }
+    .popup-title { font-weight:700; color:#38bdf8; font-size:0.85rem; margin-bottom:2px; }
+    .popup-sub { font-size:0.7rem; color:#94a3b8; margin-bottom:6px; }
+    .popup-btn {
+      display:block; width:100%; padding:5px; background:#38bdf8; color:#0f172a;
+      border:none; border-radius:4px; font-size:0.7rem; font-weight:600; cursor:pointer; text-align:center;
+    }
+
+    /* DETAIL PANEL */
+    #detail-panel {
+      position:absolute; top:0; right:0; bottom:0; width:360px; max-width:90vw;
+      background:#1e293b; border-left:1px solid #334155;
+      transform:translateX(100%); transition:0.35s cubic-bezier(0.4,0,0.2,1);
+      z-index:50; display:flex; flex-direction:column; box-shadow:-8px 0 30px rgba(0,0,0,0.4);
+    }
+    #detail-panel.open { transform:translateX(0); }
+    .detail-cover { height:140px; background:#334155; position:relative; overflow:hidden; flex-shrink:0; }
+    .detail-cover img { width:100%; height:100%; object-fit:cover; }
+    .detail-cover .overlay { position:absolute; inset:0; background:linear-gradient(to bottom, transparent, rgba(15,23,42,0.8)); }
+    .detail-close { position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,0.5); color:#fff; border:none; cursor:pointer; }
+    .detail-body { flex:1; overflow-y:auto; padding:14px; }
+    .detail-badge { display:inline-block; padding:2px 10px; border-radius:10px; font-size:0.6rem; font-weight:600; background:#334155; margin-bottom:6px; }
+    .detail-title { font-size:1.15rem; font-weight:700; margin-bottom:2px; }
+    .detail-sub { color:#94a3b8; font-size:0.8rem; margin-bottom:10px; }
+    .detail-meta { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
+    .meta-box { background:#334155; padding:6px 8px; border-radius:6px; }
+    .meta-label { font-size:0.55rem; text-transform:uppercase; color:#94a3b8; }
+    .meta-value { font-weight:600; font-size:0.8rem; }
+    .detail-desc { font-size:0.85rem; line-height:1.5; color:#cbd5e1; text-align:justify; }
+
+    /* LEGENDA */
+    .legend {
+      position:absolute; bottom:12px; left:12px; background:rgba(15,23,42,0.9);
+      border:1px solid #334155; border-radius:8px; padding:8px 12px; z-index:10;
+      font-size:0.7rem; color:#cbd5e1; backdrop-filter:blur(4px);
+    }
+    .legend-item { display:flex; align-items:center; gap:6px; margin:3px 0; }
+    .legend-dot { width:10px; height:10px; border-radius:50%; }
+
+    /* MOBILE */
+    @media (max-width:768px) {
+      .topbar { height:48px; padding:4px 8px; }
+      .topbar-logo { font-size:0.9rem; }
+      .year-controls button { padding:4px 6px; font-size:0.65rem; }
+      #yearInput { width:60px; font-size:0.85rem; }
+      .search-box { max-width:140px; min-width:80px; }
+      .main-area { flex-direction:column; }
+      #map { height:50%; flex:none; }
+      #sidebar { width:100%; height:50%; border-left:none; border-top:1px solid #334155; }
+      #detail-panel { width:92%; }
+      .detail-cover { height:110px; }
+      .legend { bottom:auto; top:60px; left:8px; font-size:0.6rem; padding:6px 8px; }
+    }
+  </style>
+<base target="_blank">
 </head>
 <body>
-    <div class="topbar">
-        <button id="year-minus-100">&lt;&lt;</button>
-        <button id="year-minus-10">&lt;</button>
-        <form id="year-form" style="display: inline;">
-            <input type="number" id="year-input" value="2024" style="width: 80px;">
-        </form>
-        <button id="year-plus-10">&gt;</button>
-        <button id="year-plus-100">&gt;&gt;</button>
-        <span id="year-indicator" style="margin-left: auto; font-weight: bold;">Year: 2024</span>
-        <button id="help-button" class="help-button">Help</button>
-        <button id="share-button" class="share-button">Share</button>
-    </div>
-    <div id="help-popup" class="help-popup">
-        <div class="help-popup-content">
-            <span id="help-close" class="help-close">&times;</span>
-            <h2>Welcome to Globstory!</h2>
-            <p>Globstory is an interactive platform designed to bring history to life. With a combination of maps, timelines, and links to historical content, you can explore the events of the past in a dynamic and engaging way.</p>
-            <h3>How It Works:</h3>
-            <ul>
-                <li><strong>Interactive Map and Timeline:</strong>
-                    <ul>
-                        <li>Hover your cursor over a nation or city mentioned in linked articles (e.g., Wikipedia), and the map automatically centers on those coordinates.</li>
-                        <li>Hover over a year on the timeline, and the map updates to reflect the geopolitical boundaries or significant events of that specific time.</li>
-                    </ul>
-                </li>
-                <li><strong>Link Integration:</strong>
-                    <ul>
-                        <li>Insert a URL (like a Wikipedia page) to dive deeper into historical topics. The platform syncs with the content to highlight relevant places and dates.</li>
-                    </ul>
-                </li>
-                <li><strong>Dynamic Exploration:</strong>
-                    <ul>
-                        <li>Navigate between historical locations and eras in a seamless way. Every interaction updates the visual representation, helping you to contextualize events both geographically and temporally.</li>
-                    </ul>
-                </li>
-            </ul>
-            <p>Feel free to explore and let us know your suggestions—we’d love to hear your feedback to make this platform even better! <a href="https://docs.google.com/forms/d/e/1FAIpQLSccUsR4Rg2ETUKf92oZ1vQTlcPLMLtLvFFDvxKHeXdDWvkW-w/viewform?usp=sharing" target="_blank">Submit your feedback here</a>.</p>
-            <p>To share a Wikipedia link directly, use a URL like: <code>https://globstory.it/?wiki=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FExample</code></p>
-            <div class="donation-section">
-                <p>If you want to support the development of Globstory, you can donate using the links below:</p>
-                <a href="https://t.me/+p6Lbmlri7XxiMDg0" target="_blank" class="donation-button">Telegram Group</a>
-                <a href="https://github.com/theRAGEhero/historyAI" target="_blank" class="donation-button">GitHub</a>
-                <a href="https://www.paypal.com/paypalme/9minuti" target="_blank" class="donation-button">Donate via PayPal</a>
-                <a href="https://buymeacoffee.com/9minuti" target="_blank" class="donation-button">Buy Me a Coffee</a>
-            </div>
-        </div>
-    </div>
-    <div id="share-popup" class="help-popup">
-        <div class="help-popup-content">
-            <span id="share-close" class="help-close">&times;</span>
-            <form id="share-form">
-                <label for="share-url">Shareable Link:</label>
-                <input type="text" id="share-url" readonly>
-                <button type="button" id="copy-button">Copy</button>
-            </form>
-            <form id="embed-form">
-                <label for="embed-code">Embedding Link:</label>
-                <input type="text" id="embed-code" readonly>
-                <button type="button" id="embed-copy-button">Copy</button>
-            </form>
-        </div>
-    </div>
-    <div class="container">
-        <div class="resizable-container">
-            <div id="map-container">
-                <iframe 
-                    width="425" 
-                    height="350" 
-                    frameborder="0" 
-                    scrolling="no" 
-                    marginheight="0" 
-                    marginwidth="0" 
-                    src="https://embed.openhistoricalmap.org/#map=0/43.021/7.471&layers=O&date=2024-12-08" 
-                    style="border: 1px solid black; width: 100%; height: 100%;">
-                </iframe>
-                <br/>
-                <small>
-                    <a href="https://www.openhistoricalmap.org/#map=6/43.021/7.471&amp;layers=O&amp;date=2024-12-08">
-                        View Larger Map
-                    </a>
-                </small>
-            </div>
-            <div class="slider" id="slider"></div>
-            <div class="sidebar">
-            <form id="wiki-form">
-                <label for="wiki-link">Wikipedia or Google Doc Link:</label>
-                <input type="text" id="wiki-link" placeholder="Enter Wikipedia or Google Doc link" required>
-                <button type="submit">OK</button>
-                <p>E.g. https://en.wikipedia.org/wiki/World_War_II</p>
-            </form>
-            <form id="wiki-search-form">
-                <label for="wiki-search">Search on Wiki:</label>
-                <input type="text" id="wiki-search" placeholder="Enter search query" required>
-                <button type="submit">Search</button>
-            </form>
-            <form id="upload-form" enctype="multipart/form-data">
-                <label for="file-upload">Upload File:</label>
-                <input type="file" id="file-upload" accept=".txt,.md" required>
-                <button type="submit">OK</button>
-            </form>
-            <div id="wiki-content">
-                <h3 style="color: #FFA500;">Instructions: Hover your mouse/finger on the highlighted text (<span style="background-color: lightgreen;">years</span> and <span style="background-color: yellow;">places</span>) and see the magic happen.</h3>
-                <p>World War II or the Second World War (<span style="background-color: lightgreen;">1939</span> – <span style="background-color: lightgreen;">1945</span>) was a global conflict between two coalitions: the Allies and the Axis powers. Nearly all the world's countries—including all the great powers—participated, with many investing all available economic, industrial, and scientific capabilities in pursuit of total war, blurring the distinction between military and civilian resources. Tanks and aircraft played major roles, with the latter enabling the strategic bombing of population centres and delivery of the only two nuclear weapons ever used in war. World War II was the deadliest conflict in history, resulting in 70 to 85 million deaths, more than half being civilians. Millions died in genocides, including the Holocaust of European Jews, as well as from massacres, starvation, and disease. Following the Allied powers' victory, <span style="background-color: yellow;">Germany</span>, <span style="background-color: yellow;">Austria</span>, <span style="background-color: yellow;">Japan</span>, and <span style="background-color: yellow;">Korea</span> were occupied, and war crimes tribunals were conducted against <span style="background-color: yellow;">German</span> and <span style="background-color: yellow;">Japanese</span> leaders.</p>
+  <div id="app">
+    <header class="topbar">
+      <a href="#" class="topbar-logo" id="btnReset"><i class="fa-solid fa-earth-americas"></i> GlobStory + Atlas</a>
+      <div class="year-controls">
+        <button onclick="app.changeYear(-100)"><i class="fa-solid fa-angles-left"></i></button>
+        <button onclick="app.changeYear(-10)"><i class="fa-solid fa-angle-left"></i></button>
+        <input type="number" id="yearInput" value="1500">
+        <button onclick="app.changeYear(10)"><i class="fa-solid fa-angle-right"></i></button>
+        <button onclick="app.changeYear(100)"><i class="fa-solid fa-angles-right"></i></button>
+      </div>
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Buscar porto, rota...">
+      </div>
+    </header>
 
-                <p>The causes of World War II included unresolved tensions in the aftermath of World War I and the rise of fascism in <span style="background-color: yellow;">Europe</span> and militarism in <span style="background-color: yellow;">Japan</span>. Key events leading up to the war included <span style="background-color: yellow;">Japan</span>'s invasion of <span style="background-color: yellow;">Manchuria</span>, the <span style="background-color: yellow;">Spanish Civil War</span>, the outbreak of the <span style="background-color: yellow;">Second Sino-Japanese War</span>, and <span style="background-color: yellow;">Germany</span>'s annexations of <span style="background-color: yellow;">Austria</span> and the <span style="background-color: yellow;">Sudetenland</span>. World War II is generally considered to have begun on <span style="background-color: lightgreen;">1939</span>, when <span style="background-color: yellow;">Nazi Germany</span>, under Adolf Hitler, invaded <span style="background-color: yellow;">Poland</span>, prompting the <span style="background-color: yellow;">United Kingdom</span> and <span style="background-color: yellow;">France</span> to declare war on <span style="background-color: yellow;">Germany</span>. <span style="background-color: yellow;">Poland</span> was divided between <span style="background-color: yellow;">Germany</span> and the <span style="background-color: yellow;">Soviet Union</span> under the Molotov–Ribbentrop Pact, in which they had agreed on "spheres of influence" in <span style="background-color: yellow;">Eastern Europe</span>. In <span style="background-color: lightgreen;">1940</span>, the <span style="background-color: yellow;">Soviets</span> annexed the <span style="background-color: yellow;">Baltic states</span> and parts of <span style="background-color: yellow;">Finland</span> and <span style="background-color: yellow;">Romania</span>. After the fall of <span style="background-color: yellow;">France</span> in <span style="background-color: lightgreen;">1940</span>, the war continued mainly between <span style="background-color: yellow;">Germany</span> and the <span style="background-color: yellow;">British Empire</span>, with fighting in the <span style="background-color: yellow;">Balkans</span>, <span style="background-color: yellow;">Mediterranean</span>, and <span style="background-color: yellow;">Middle East</span>, the aerial Battle of <span style="background-color: yellow;">Britain</span> and the Blitz, and naval Battle of the <span style="background-color: yellow;">Atlantic</span>. Through a series of campaigns and treaties, <span style="background-color: yellow;">Germany</span> took control of much of continental <span style="background-color: yellow;">Europe</span> and formed the Axis alliance with <span style="background-color: yellow;">Italy</span>, <span style="background-color: yellow;">Japan</span>, and other countries. In <span style="background-color: lightgreen;">1941</span>, <span style="background-color: yellow;">Germany</span> led the <span style="background-color: yellow;">European Axis</span> in an invasion of the <span style="background-color: yellow;">Soviet Union</span>, opening the <span style="background-color: yellow;">Eastern Front</span> and initially making large territorial gains.</p>
+    <div class="main-area">
+      <div id="map"></div>
+
+      <div class="legend">
+        <div style="font-weight:600; margin-bottom:4px; color:#38bdf8;">Legenda</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#a78bfa;"></span> Mapa Histórico</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#38bdf8;"></span> Porto</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#fbbf24;"></span> Rota Comercial</div>
+      </div>
+
+      <aside id="sidebar">
+        <div class="sidebar-header">
+          <span><i class="fa-solid fa-filter"></i> Filtros & Resultados</span>
+          <span id="count-badge" style="background:#38bdf8; color:#0f172a; padding:2px 8px; border-radius:10px; font-size:0.65rem; font-weight:700;">0</span>
+        </div>
+        <div class="sidebar-scroll">
+          <span class="filter-label">Período</span>
+          <div class="range-row">
+            <input type="number" id="inputStart" value="-2000">
+            <span style="color:#94a3b8; font-size:0.7rem;">até</span>
+            <input type="number" id="inputEnd" value="2026">
+          </div>
+          <span class="filter-label">Categoria</span>
+          <div class="filter-chips" id="chips-cat"></div>
+          <span class="filter-label">Tema</span>
+          <div class="filter-chips" id="chips-tema"></div>
+          <span class="filter-label">Cultura</span>
+          <div class="filter-chips" id="chips-povo"></div>
+          <div class="section-title"><span><i class="fa-solid fa-list"></i> Registros</span></div>
+          <div class="cards-list" id="cardsList"></div>
+        </div>
+      </aside>
+
+      <aside id="detail-panel">
+        <div class="detail-cover">
+          <img id="d-cover" src="" alt="">
+          <div class="overlay"></div>
+          <button class="detail-close" id="btnCloseDetail"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="detail-body">
+          <span class="detail-badge" id="d-badge">Categoria</span>
+          <h2 class="detail-title" id="d-title">Título</h2>
+          <div class="detail-sub" id="d-sub">Subtítulo</div>
+          <div class="detail-meta">
+            <div class="meta-box"><div class="meta-label">Ano</div><div class="meta-value" id="d-ano">-</div></div>
+            <div class="meta-box"><div class="meta-label">Local</div><div class="meta-value" id="d-local">-</div></div>
+            <div class="meta-box"><div class="meta-label">Coordenadas</div><div class="meta-value" id="d-coords">-</div></div>
+            <div class="meta-box"><div class="meta-label">Cultura</div><div class="meta-value" id="d-povo">-</div></div>
+          </div>
+          <p class="detail-desc" id="d-desc">Descrição</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // ===== DADOS DO ATLAS =====
+    const CORES = { mapa:'#a78bfa', porto:'#38bdf8', rota:'#fbbf24' };
+    const LABELS = { mapa:'Mapa', porto:'Porto', rota:'Rota Comercial' };
+
+    const DADOS = [
+      { nome:"Carta de Piri Reis (1513)", subtitulo:"Mapa-múndi Otomano", lat:41.0082, lon:28.9784, pais:"Turquia", continente:"Europa/Ásia", categoria:"mapa", tema:"Cultura", povo:"Otomanos", fundacao:1513, descricao:"Um dos mapas mais antigos a mostrar a costa da América do Sul com notável precisão.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg" },
+      { nome:"Mapa de Cantino (1502)", subtitulo:"Planisfério português", lat:38.7071, lon:-9.1355, pais:"Portugal", continente:"Europa", categoria:"mapa", tema:"Cultura", povo:"Portugueses", fundacao:1502, descricao:"O mais antigo mapa a retratar a costa do Brasil.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg" },
+      { nome:"Veracruz (México)", subtitulo:"O porto mais antigo do México continental", lat:19.2029, lon:-96.1382, pais:"México", continente:"América do Norte", categoria:"porto", tema:"Colonização", povo:"Espanhóis e Nahuas", fundacao:1519, descricao:"Fundado por Hernán Cortés em 1519, o Porto de Veracruz foi a principal porta de entrada de mercadorias e escravizados durante o período colonial.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Puerto_de_Veracruz.jpg/400px-Puerto_de_Veracruz.jpg" },
+      { nome:"Havana (Cuba)", subtitulo:"O coração do império espanhol no Caribe", lat:23.1136, lon:-82.3666, pais:"Cuba", continente:"América do Norte", categoria:"porto", tema:"Comércio e Defesa", povo:"Espanhóis e Cubanos", fundacao:1515, descricao:"O Porto de Havana foi o ponto de encontro da Frota das Índias, sendo o porto mais estratégico do Caribe durante os séculos XVI-XVIII.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Havana_harbor.jpg/400px-Havana_harbor.jpg" },
+      { nome:"Nova Orleans (EUA)", subtitulo:"A porta de entrada do Mississippi", lat:29.9511, lon:-90.0715, pais:"Estados Unidos", continente:"América do Norte", categoria:"porto", tema:"Comércio Fluvial", povo:"Franceses, Africanos e Americanos", fundacao:1718, descricao:"Crucial para o comércio de algodão e escravizados no século XIX.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/New_Orleans_harbor.jpg/400px-New_Orleans_harbor.jpg" },
+      { nome:"Porto Bello (Panamá)", subtitulo:"O porto das feiras de ouro", lat:9.5533, lon:-79.6531, pais:"Panamá", continente:"América Central", categoria:"porto", tema:"Comércio Colonial", povo:"Espanhóis e Emberá", fundacao:1597, descricao:"Principal porto espanhol no Caribe para o comércio de ouro e prata vindos do Peru.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Portobelo_Panama.jpg/400px-Portobelo_Panama.jpg" },
+      { nome:"Recife (Brasil)", subtitulo:"O 'Veneza Brasileira' e porto do açúcar", lat:-8.0476, lon:-34.8770, pais:"Brasil", continente:"América do Sul", categoria:"porto", tema:"Economia Colonial", povo:"Portugueses, Holandeses e Africanos", fundacao:1537, descricao:"Centro da economia açucareira do Nordeste brasileiro, ocupado pelos holandeses entre 1630-1654.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Recife_port.jpg/400px-Recife_port.jpg" },
+      { nome:"Cartagena (Colômbia)", subtitulo:"A fortaleza do Caribe", lat:10.3910, lon:-75.4824, pais:"Colômbia", continente:"América do Sul", categoria:"porto", tema:"Defesa e Comércio", povo:"Espanhóis, Africanos e Indígenas", fundacao:1533, descricao:"Principal porto da costa norte da América do Sul para o comércio de escravizados e ouro.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cartagena_harbor.jpg/400px-Cartagena_harbor.jpg" },
+      { nome:"Buenos Aires (Argentina)", subtitulo:"A porta do Prata", lat:-34.6037, lon:-58.3816, pais:"Argentina", continente:"América do Sul", categoria:"porto", tema:"Comércio e Imigração", povo:"Espanhóis, Italianos e Argentinos", fundacao:1536, descricao:"Principal escoadouro da prata de Potosí e centro da imigração europeia no século XIX.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Buenos_Aires_port.jpg/400px-Buenos_Aires_port.jpg" },
+      { nome:"Callao (Peru)", subtitulo:"O porto do Vice-Reino do Peru", lat:-12.0658, lon:-77.1500, pais:"Peru", continente:"América do Sul", categoria:"porto", tema:"Comércio de Prata", povo:"Espanhóis, Quechuas e Africanos", fundacao:1537, descricao:"Principal porto do Vice-Reino do Peru, escoando a prata de Potosí.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Callao_port.jpg/400px-Callao_port.jpg" },
+      { nome:"Santos (Brasil)", subtitulo:"O maior complexo portuário da América Latina", lat:-23.9608, lon:-46.3350, pais:"Brasil", continente:"América do Sul", categoria:"porto", tema:"Economia", povo:"Brasileiros", fundacao:1892, descricao:"Maior complexo portuário da América Latina, fundamental para a economia cafeeira.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg" },
+      { nome:"Alexandria (Egito)", subtitulo:"O farol do mundo antigo", lat:31.2001, lon:29.9187, pais:"Egito", continente:"África", categoria:"porto", tema:"Antiguidade", povo:"Gregos, Romanos e Egípcios", fundacao:-331, descricao:"Fundado por Alexandre, o Grande em 331 a.C., foi o maior porto do mundo antigo.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg" },
+      { nome:"Tânger (Marrocos)", subtitulo:"A porta entre dois continentes", lat:35.7595, lon:-5.8340, pais:"Marrocos", continente:"África", categoria:"porto", tema:"Comércio Mediterrâneo", povo:"Fenícios, Romanos, Árabes e Berberes", fundacao:-500, descricao:"Um dos portos mais antigos do mundo, fundado pelos fenícios.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Tangier_port.jpg/400px-Tangier_port.jpg" },
+      { nome:"Arguin (Mauritânia)", subtitulo:"O entreposto português no Saara", lat:20.6000, lon:-16.4500, pais:"Mauritânia", continente:"África", categoria:"porto", tema:"Comércio de Escravos", povo:"Portugueses, Árabes e Berberes", fundacao:1445, descricao:"Um dos primeiros entrepostos europeus na África Ocidental, fundado pelos portugueses em 1445.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Arguin_island.jpg/400px-Arguin_island.jpg" },
+      { nome:"Cidade do Cabo (África do Sul)", subtitulo:"A rota do Cabo", lat:-33.9249, lon:18.4241, pais:"África do Sul", continente:"África", categoria:"porto", tema:"Rota Marítima", povo:"Holandeses, Ingleses, Malaios e Africanos", fundacao:1652, descricao:"Posto de reabastecimento da Companhia Holandesa das Índias Orientais.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Cape_Town_harbor.jpg/400px-Cape_Town_harbor.jpg" },
+      { nome:"Elmina (Gana)", subtitulo:"O primeiro entreposto europeu na África Subsaariana", lat:5.0877, lon:-1.3482, pais:"Gana", continente:"África", categoria:"porto", tema:"Comércio de Escravos", povo:"Portugueses, Holandeses e Africanos", fundacao:1482, descricao:"Castelo de São Jorge da Mina, o mais importante centro de comércio de escravizados.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Elmina_Castle.jpg/400px-Elmina_Castle.jpg" },
+      { nome:"Lagos (Nigéria)", subtitulo:"O gigante da África Ocidental", lat:6.5244, lon:3.3792, pais:"Nigéria", continente:"África", categoria:"porto", tema:"Comércio Colonial", povo:"Iorubás, Europeus e Nigerianos", fundacao:1470, descricao:"Principal porto da Nigéria durante o período colonial britânico.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Lagos_port.jpg/400px-Lagos_port.jpg" },
+      { nome:"Kilwa Kisiwani (Tanzânia)", subtitulo:"A pérola da costa swahili", lat:-8.9583, lon:39.5167, pais:"Tanzânia", continente:"África", categoria:"porto", tema:"Comércio no Oceano Índico", povo:"Suaílis, Árabes e Africanos", fundacao:900, descricao:"Importante porto da costa swahili entre os séculos IX e XVI.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Kilwa_ruins.jpg/400px-Kilwa_ruins.jpg" },
+      { nome:"Mombaça (Quênia)", subtitulo:"A fortaleza portuguesa no Índico", lat:-4.0435, lon:39.6682, pais:"Quênia", continente:"África", categoria:"porto", tema:"Conflito Colonial", povo:"Suaílis, Portugueses, Árabes e Africanos", fundacao:900, descricao:"Forte Jesus, disputado entre portugueses, árabes e britânicos.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Mombasa_port.jpg/400px-Mombasa_port.jpg" },
+      { nome:"Zanzibar (Tanzânia)", subtitulo:"A ilha das especiarias", lat:-6.1631, lon:39.1912, pais:"Tanzânia", continente:"África", categoria:"porto", tema:"Comércio de Especiarias", povo:"Árabes, Suaílis, Indianos e Africanos", fundacao:1000, descricao:"Centro do comércio de especiarias, especialmente cravo.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Zanzibar_harbor.jpg/400px-Zanzibar_harbor.jpg" },
+      { nome:"Rota do Atlântico Sul", subtitulo:"Lisboa ↔ Santos", tipo:"rota", pontos:[{lat:38.7071,lon:-9.1355},{lat:28.9784,lon:-13.0},{lat:-23.9608,lon:-46.3350}], cor:"#fbbf24", descricao:"Principal rota comercial entre Portugal e o Brasil colonial.", fundacao:1500, pais:"Portugal/Brasil", continente:"Europa/América do Sul", categoria:"rota", tema:"Comércio", povo:"Portugueses e Brasileiros", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg" },
+      { nome:"Rota do Pacífico", subtitulo:"Panamá ↔ Santos", tipo:"rota", pontos:[{lat:9.3598,lon:-79.9012},{lat:-23.9608,lon:-46.3350}], cor:"#2ecc71", descricao:"Conexão entre os oceanos Pacífico e Atlântico via Canal do Panamá.", fundacao:1914, pais:"Panamá/Brasil", continente:"América Central/América do Sul", categoria:"rota", tema:"Comércio", povo:"Panamenhos e Brasileiros", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Panama_Canal_Gatun_Locks.jpg/400px-Panama_Canal_Gatun_Locks.jpg" },
+      { nome:"Rota do Mediterrâneo", subtitulo:"Tânger ↔ Alexandria", tipo:"rota", pontos:[{lat:35.7595,lon:-5.8340},{lat:36.0,lon:0.0},{lat:31.2001,lon:29.9187}], cor:"#3498db", descricao:"Conexão entre o Atlântico e o Mar Vermelho via Mediterrâneo.", fundacao:-500, pais:"Marrocos/Egito", continente:"África", categoria:"rota", tema:"Comércio", povo:"Fenícios, Romanos, Árabes", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg" }
+    ];
+
+    // ===== APLICAÇÃO =====
+    const app = {
+      data: DADOS,
+      active: { categoria:'todos', tema:'todos', povo:'todos' },
+      search: '',
+      startYear: -2000,
+      endYear: 2026,
+      currentYear: 1500,
+      map: null,
+      popup: null,
+
+      init() {
+        this.yearInput = document.getElementById('yearInput');
+        this.initMap();
+        this.renderChips();
+        this.applyFilters();
+        this.bindEvents();
+      },
+
+      initMap() {
+        // Estilo oficial do OpenHistoricalMap para MapLibre
+        const OHM_STYLE = 'https://www.openhistoricalmap.org/map-styles/main/main.json';
+
+        this.map = new maplibregl.Map({
+          container: 'map',
+          style: OHM_STYLE,
+          center: [-10, 10],
+          zoom: 2.2,
+          projection: 'mercator',
+          attributionControl: true
+        });
+
+        this.map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+        this.map.on('load', () => {
+          this.addAtlasLayers();
+          this.setMapDate(this.currentYear);
+        });
+
+        // Fecha popup ao clicar no mapa
+        this.map.on('click', (e) => {
+          const features = this.map.queryRenderedFeatures(e.point, {
+            layers: ['atlas-points', 'atlas-points-glow']
+          });
+          if (features.length) {
+            const nome = features[0].properties.nome;
+            this.flyToByName(nome);
+          }
+        });
+
+        // Cursor pointer ao passar sobre pontos
+        this.map.on('mouseenter', 'atlas-points', () => {
+          this.map.getCanvas().style.cursor = 'pointer';
+        });
+        this.map.on('mouseleave', 'atlas-points', () => {
+          this.map.getCanvas().style.cursor = '';
+        });
+      },
+
+      // Adiciona camadas GeoJSON dos portos/mapas/rotas
+      addAtlasLayers() {
+        const pontos = this.data.filter(d => d.tipo !== 'rota' && d.lat != null && d.lon != null);
+        const geojson = {
+          type: 'FeatureCollection',
+          features: pontos.map(p => ({
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [p.lon, p.lat] },
+            properties: {
+              nome: p.nome,
+              subtitulo: p.subtitulo || '',
+              categoria: p.categoria,
+              cor: CORES[p.categoria] || '#38bdf8',
+              fundacao: p.fundacao
+            }
+          }))
+        };
+
+        this.map.addSource('atlas-source', {
+          type: 'geojson',
+          data: geojson
+        });
+
+        // Glow (halo)
+        this.map.addLayer({
+          id: 'atlas-points-glow',
+          type: 'circle',
+          source: 'atlas-source',
+          paint: {
+            'circle-radius': 18,
+            'circle-color': ['get', 'cor'],
+            'circle-opacity': 0.2,
+            'circle-stroke-width': 0
+          }
+        });
+
+        // Ponto principal
+        this.map.addLayer({
+          id: 'atlas-points',
+          type: 'circle',
+          source: 'atlas-source',
+          paint: {
+            'circle-radius': 8,
+            'circle-color': ['get', 'cor'],
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#ffffff'
+          }
+        });
+
+        // Rótulos
+        this.map.addLayer({
+          id: 'atlas-labels',
+          type: 'symbol',
+          source: 'atlas-source',
+          layout: {
+            'text-field': ['get', 'nome'],
+            'text-font': ['Noto Sans Regular'],
+            'text-size': 11,
+            'text-offset': [0, 1.2],
+            'text-anchor': 'top',
+            'text-allow-overlap': false,
+            'text-ignore-placement': false
+          },
+          paint: {
+            'text-color': '#e2e8f0',
+            'text-halo-color': '#0f172a',
+            'text-halo-width': 2
+          }
+        });
+
+        // Rotas (linhas)
+        const rotas = this.data.filter(d => d.tipo === 'rota' && d.pontos && d.pontos.length >= 2);
+        rotas.forEach((rota, idx) => {
+          const id = 'rota-' + idx;
+          const coords = rota.pontos.map(p => [p.lon, p.lat]);
+          this.map.addSource(id, {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              geometry: { type: 'LineString', coordinates: coords }
+            }
+          });
+          this.map.addLayer({
+            id: id + '-line',
+            type: 'line',
+            source: id,
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: {
+              'line-color': rota.cor || '#fbbf24',
+              'line-width': 2.5,
+              'line-dasharray': [4, 3],
+              'line-opacity': 0.85
+            }
+          });
+          this.map.addLayer({
+            id: id + '-glow',
+            type: 'line',
+            source: id,
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: {
+              'line-color': rota.cor || '#fbbf24',
+              'line-width': 6,
+              'line-dasharray': [4, 3],
+              'line-opacity': 0.15
+            }
+          });
+        });
+      },
+
+      // Atualiza a data do OHM filtrando camadas por start_date/end_date
+      setMapDate(year) {
+        if (!this.map || !this.map.isStyleLoaded()) return;
+        const dateStr = year + '-01-01';
+        // O OHM usa filtros com propriedades start_date e end_date.
+        // Vamos tentar ajustar todos os filtros de camadas que tenham source-layer.
+        const layers = this.map.getStyle().layers;
+        if (!layers) return;
+        layers.forEach(layer => {
+          if (!layer['source-layer']) return;
+          try {
+            const currentFilter = this.map.getFilter(layer.id);
+            if (!currentFilter) return;
+            // Se já tem filtro de data, substitui; senão, deixa como está
+            // Essa é uma simplificação — o OHM style já vem com filtros de data
+            // que são controlados pelo timeslider oficial.
+          } catch(e) {}
+        });
+        // Fallback: recarrega o style com date na URL não funciona no MapLibre.
+        // Para um controle real de data no OHM via MapLibre, o ideal é usar
+        // o plugin maplibre-gl-dates. Sem ele, o mapa mostra o default.
+        // Como estamos usando o embed OHM antes, aqui mantemos o mapa histórico
+        // e filtramos apenas os pontos do Atlas por ano.
+      },
+
+      updateAtlasPoints(filteredItems) {
+        if (!this.map || !this.map.getSource('atlas-source')) return;
+        const nomesVisiveis = new Set(filteredItems.filter(d => d.tipo !== 'rota').map(d => d.nome));
+        const pontos = this.data.filter(d => d.tipo !== 'rota' && d.lat != null && d.lon != null);
+        const geojson = {
+          type: 'FeatureCollection',
+          features: pontos.map(p => ({
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [p.lon, p.lat] },
+            properties: {
+              nome: p.nome,
+              subtitulo: p.subtitulo || '',
+              categoria: p.categoria,
+              cor: CORES[p.categoria] || '#38bdf8',
+              fundacao: p.fundacao,
+              // Propriedade para controlar visibilidade
+              visible: nomesVisiveis.has(p.nome) ? 1 : 0
+            }
+          }))
+        };
+        this.map.getSource('atlas-source').setData(geojson);
+      },
+
+      changeYear(delta) {
+        const y = parseInt(this.yearInput.value, 10) + delta;
+        this.yearInput.value = y;
+        this.currentYear = y;
+        this.setMapDate(y);
+        this.applyFilters();
+      },
+
+      flyToByName(nome) {
+        const item = this.data.find(d => d.nome === nome);
+        if (!item) return;
+        this.flyTo(item);
+      },
+
+      flyTo(item) {
+        let lat, lon, zoom;
+        if (item.tipo === 'rota' && item.pontos?.length) {
+          lat = item.pontos[0].lat; lon = item.pontos[0].lon; zoom = 4.5;
+        } else {
+          lat = item.lat; lon = item.lon;
+          zoom = item.categoria === 'mapa' ? 4 : 6;
+        }
+        this.map.flyTo({ center: [lon, lat], zoom, duration: 1800 });
+        this.openDetail(item);
+
+        // Popup temporário no mapa
+        if (this.popup) this.popup.remove();
+        this.popup = new maplibregl.Popup({ offset: 15, className: 'ohm-popup' })
+          .setLngLat([lon, lat])
+          .setHTML(`
+            <div class="popup-title">${item.nome}</div>
+            <div class="popup-sub">${item.subtitulo||''}</div>
+            <button class="popup-btn" onclick="app.openDetailByName('${item.nome.replace(/'/g,"\'")}')">Ver detalhes</button>
+          `)
+          .addTo(this.map);
+      },
+
+      openDetailByName(nome) {
+        const item = this.data.find(d => d.nome === nome);
+        if (item) this.openDetail(item);
+      },
+
+      openDetail(item) {
+        const p = document.getElementById('detail-panel');
+        document.getElementById('d-cover').src = item.coverImage || '';
+        const badge = document.getElementById('d-badge');
+        badge.textContent = LABELS[item.categoria] || item.categoria;
+        badge.style.color = CORES[item.categoria] || '#38bdf8';
+        document.getElementById('d-title').textContent = item.nome;
+        document.getElementById('d-sub').textContent = item.subtitulo || '';
+        const ano = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
+        document.getElementById('d-ano').textContent = ano;
+        document.getElementById('d-local').textContent = `${item.pais||''}${item.continente?', '+item.continente:''}`;
+        document.getElementById('d-coords').textContent = item.tipo==='rota' ? `${item.pontos?.length||0} pontos` : `${item.lat?.toFixed(4)||''}°, ${item.lon?.toFixed(4)||''}°`;
+        document.getElementById('d-povo').textContent = item.povo || 'Desconhecido';
+        document.getElementById('d-desc').textContent = item.descricao || '';
+        p.classList.add('open');
+      },
+
+      closeDetail() {
+        document.getElementById('detail-panel').classList.remove('open');
+        if (this.popup) { this.popup.remove(); this.popup = null; }
+      },
+
+      renderChips() {
+        const mk = (container, arr, key) => {
+          const all = ['todos', ...new Set(this.data.map(d => d[key]).filter(Boolean))];
+          container.innerHTML = all.map(v => {
+            const label = v==='todos' ? 'Todos' : (LABELS[v] || v);
+            return `<span class="chip ${v==='todos'?'active':''}" data-key="${key}" data-val="${v}">${label}</span>`;
+          }).join('');
+        };
+        mk(document.getElementById('chips-cat'), [...new Set(this.data.map(d=>d.categoria))], 'categoria');
+        mk(document.getElementById('chips-tema'), [...new Set(this.data.map(d=>d.tema))], 'tema');
+        mk(document.getElementById('chips-povo'), [...new Set(this.data.map(d=>d.povo))], 'povo');
+      },
+
+      applyFilters() {
+        let list = this.data.filter(d => {
+          const mc = this.active.categoria==='todos' || d.categoria===this.active.categoria;
+          const mt = this.active.tema==='todos' || d.tema===this.active.tema;
+          const mp = this.active.povo==='todos' || d.povo===this.active.povo;
+          const ma = d.fundacao >= this.startYear && d.fundacao <= this.endYear;
+          return mc && mt && mp && ma;
+        });
+        if (this.search) {
+          const q = this.search.toLowerCase();
+          list = list.filter(d => (d.nome+d.subtitulo+d.descricao+d.povo+d.pais).toLowerCase().includes(q));
+        }
+        this.renderCards(list);
+        document.getElementById('count-badge').textContent = list.length;
+        this.updateAtlasPoints(list);
+      },
+
+      renderCards(list) {
+        const container = document.getElementById('cardsList');
+        if (!list.length) {
+          container.innerHTML = '<div style="color:#64748b; font-size:0.75rem; text-align:center; padding:12px;">Nenhum registro encontrado</div>';
+          return;
+        }
+        container.innerHTML = list.map(item => {
+          const cor = CORES[item.categoria] || '#38bdf8';
+          const ano = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
+          const icon = item.tipo==='rota' ? '<i class="fa-solid fa-ship" style="margin-right:4px;"></i>' : '';
+          const img = item.coverImage || '';
+          return `
+            <div class="card" style="--c:${cor}" onclick="app.flyToByName('${item.nome.replace(/'/g,"\'")}')">
+              <div class="card-thumb">${img?`<img src="${img}" alt="">`:''}</div>
+              <div class="card-body">
+                <div class="card-year">${ano}</div>
+                <div class="card-title">${icon}${item.nome}</div>
+                <div class="card-sub">${item.subtitulo||''}</div>
+                <div class="card-desc">${(item.descricao||'').substring(0,80)}${(item.descricao||'').length>80?'...':''}</div>
+              </div>
             </div>
-            <div id="wiki-search-results"></div>
-        </div>
-    </div>
-    <div class="bottombar">
-        <!-- Add any content for the bottom bar here -->
-    </div>
-<div id="welcome-popup" class="popup">
-    <div class="popup-content">
-        <span id="popup-close" class="popup-close">&times;</span>
-        <div style="position: relative; padding-bottom: 56.25%; height: 0;">
-            <iframe src="https://www.loom.com/embed/c453db5217be452ab7901bd80b879cca?sid=8e85345e-acdb-42d7-9954-20b425e7f59d" 
-                    frameborder="0" 
-                    webkitallowfullscreen 
-                    mozallowfullscreen 
-                    allowfullscreen 
-                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-            </iframe>
-        </div>
-    </div>
-</div>
+          `;
+        }).join('');
+      },
+
+      bindEvents() {
+        document.addEventListener('click', e => {
+          const chip = e.target.closest('.chip');
+          if (chip) {
+            const key = chip.dataset.key;
+            const val = chip.dataset.val;
+            this.active[key] = val;
+            chip.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            this.applyFilters();
+          }
+        });
+
+        const upd = () => {
+          this.startYear = parseInt(document.getElementById('inputStart').value) || -2000;
+          this.endYear = parseInt(document.getElementById('inputEnd').value) || 2026;
+          this.applyFilters();
+        };
+        document.getElementById('inputStart').addEventListener('change', upd);
+        document.getElementById('inputEnd').addEventListener('change', upd);
+
+        document.getElementById('searchInput').addEventListener('input', e => {
+          this.search = e.target.value.toLowerCase();
+          this.applyFilters();
+        });
+
+        this.yearInput.addEventListener('change', () => {
+          const y = parseInt(this.yearInput.value, 10);
+          if (!isNaN(y)) { this.currentYear = y; this.setMapDate(y); this.applyFilters(); }
+        });
+
+        document.getElementById('btnCloseDetail').addEventListener('click', () => this.closeDetail());
+        document.addEventListener('keydown', e => { if (e.key==='Escape') this.closeDetail(); });
+
+        document.getElementById('btnReset').addEventListener('click', e => {
+          e.preventDefault();
+          this.map.flyTo({ center: [-10, 10], zoom: 2.2, duration: 1500 });
+          this.closeDetail();
+        });
+      }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => app.init());
+  </script>
 </body>
 </html>
