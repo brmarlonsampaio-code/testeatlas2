@@ -127,7 +127,6 @@
       .legend { bottom:auto; top:60px; left:8px; font-size:0.6rem; padding:6px 8px; }
     }
   </style>
-<base target="_blank">
 </head>
 <body>
   <div id="app">
@@ -202,38 +201,38 @@
   </div>
 
   <script>
-    const CORES = { mapa: '#a78bfa', porto: '#38bdf8', rota: '#fbbf24' };
-    const LABELS = { mapa: 'Mapa', porto: 'Porto', rota: 'Rota Comercial' };
+    const CORES = { mapa:'#a78bfa', porto:'#38bdf8', rota:'#fbbf24' };
+    const LABELS = { mapa:'Mapa', porto:'Porto', rota:'Rota Comercial' };
 
     const DADOS = [
-      { nome: "Carta de Piri Reis (1513)", subtitulo: "Mapa-mundi Otomano", lat: 41.0082, lon: 28.9784, pais: "Turquia", continente: "Europa/Asia", categoria: "mapa", tema: "Cultura", povo: "Otomanos", fundacao: 1513, descricao: "Um dos mapas mais antigos a mostrar a costa da America do Sul com notavel precisao.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg" },
-      { nome: "Mapa de Cantino (1502)", subtitulo: "Planisferio portugues", lat: 38.7071, lon: -9.1355, pais: "Portugal", continente: "Europa", categoria: "mapa", tema: "Cultura", povo: "Portugueses", fundacao: 1502, descricao: "O mais antigo mapa a retratar a costa do Brasil.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg" },
-      { nome: "Veracruz (Mexico)", subtitulo: "O porto mais antigo do Mexico continental", lat: 19.2029, lon: -96.1382, pais: "Mexico", continente: "America do Norte", categoria: "porto", tema: "Colonizacao", povo: "Espanhois e Nahuas", fundacao: 1519, descricao: "Fundado por Hernan Cortes em 1519, o Porto de Veracruz foi a principal porta de entrada de mercadorias e escravizados durante o periodo colonial.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Puerto_de_Veracruz.jpg/400px-Puerto_de_Veracruz.jpg" },
-      { nome: "Havana (Cuba)", subtitulo: "O coracao do imperio espanhol no Caribe", lat: 23.1136, lon: -82.3666, pais: "Cuba", continente: "America do Norte", categoria: "porto", tema: "Comercio e Defesa", povo: "Espanhois e Cubanos", fundacao: 1515, descricao: "O Porto de Havana foi o ponto de encontro da Frota das Indias, sendo o porto mais estrategico do Caribe durante os seculos XVI-XVIII.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Havana_harbor.jpg/400px-Havana_harbor.jpg" },
-      { nome: "Nova Orleans (EUA)", subtitulo: "A porta de entrada do Mississippi", lat: 29.9511, lon: -90.0715, pais: "Estados Unidos", continente: "America do Norte", categoria: "porto", tema: "Comercio Fluvial", povo: "Franceses, Africanos e Americanos", fundacao: 1718, descricao: "Crucial para o comercio de algodao e escravizados no seculo XIX.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/New_Orleans_harbor.jpg/400px-New_Orleans_harbor.jpg" },
-      { nome: "Porto Bello (Panama)", subtitulo: "O porto das feiras de ouro", lat: 9.5533, lon: -79.6531, pais: "Panama", continente: "America Central", categoria: "porto", tema: "Comercio Colonial", povo: "Espanhois e Embera", fundacao: 1597, descricao: "Principal porto espanhol no Caribe para o comercio de ouro e prata vindos do Peru.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Portobelo_Panama.jpg/400px-Portobelo_Panama.jpg" },
-      { nome: "Recife (Brasil)", subtitulo: "A Veneza Brasileira e porto do acucar", lat: -8.0476, lon: -34.8770, pais: "Brasil", continente: "America do Sul", categoria: "porto", tema: "Economia Colonial", povo: "Portugueses, Holandeses e Africanos", fundacao: 1537, descricao: "Centro da economia acucareira do Nordeste brasileiro, ocupado pelos holandeses entre 1630-1654.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Recife_port.jpg/400px-Recife_port.jpg" },
-      { nome: "Cartagena (Colombia)", subtitulo: "A fortaleza do Caribe", lat: 10.3910, lon: -75.4824, pais: "Colombia", continente: "America do Sul", categoria: "porto", tema: "Defesa e Comercio", povo: "Espanhois, Africanos e Indigenas", fundacao: 1533, descricao: "Principal porto da costa norte da America do Sul para o comercio de escravizados e ouro.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cartagena_harbor.jpg/400px-Cartagena_harbor.jpg" },
-      { nome: "Buenos Aires (Argentina)", subtitulo: "A porta do Prata", lat: -34.6037, lon: -58.3816, pais: "Argentina", continente: "America do Sul", categoria: "porto", tema: "Comercio e Imigracao", povo: "Espanhois, Italianos e Argentinos", fundacao: 1536, descricao: "Principal escoadouro da prata de Potosi e centro da imigracao europeia no seculo XIX.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Buenos_Aires_port.jpg/400px-Buenos_Aires_port.jpg" },
-      { nome: "Callao (Peru)", subtitulo: "O porto do Vice-Reino do Peru", lat: -12.0658, lon: -77.1500, pais: "Peru", continente: "America do Sul", categoria: "porto", tema: "Comercio de Prata", povo: "Espanhois, Quechuas e Africanos", fundacao: 1537, descricao: "Principal porto do Vice-Reino do Peru, escoando a prata de Potosi.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Callao_port.jpg/400px-Callao_port.jpg" },
-      { nome: "Santos (Brasil)", subtitulo: "O maior complexo portuario da America Latina", lat: -23.9608, lon: -46.3350, pais: "Brasil", continente: "America do Sul", categoria: "porto", tema: "Economia", povo: "Brasileiros", fundacao: 1892, descricao: "Maior complexo portuario da America Latina, fundamental para a economia cafeeira.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_aereo.jpg/400px-Porto_de_Santos_aereo.jpg" },
-      { nome: "Alexandria (Egito)", subtitulo: "O farol do mundo antigo", lat: 31.2001, lon: 29.9187, pais: "Egito", continente: "Africa", categoria: "porto", tema: "Antiguidade", povo: "Gregos, Romanos e Egipcios", fundacao: -331, descricao: "Fundado por Alexandre, o Grande em 331 a.C., foi o maior porto do mundo antigo.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg" },
-      { nome: "Tanger (Marrocos)", subtitulo: "A porta entre dois continentes", lat: 35.7595, lon: -5.8340, pais: "Marrocos", continente: "Africa", categoria: "porto", tema: "Comercio Mediterraneo", povo: "Fenicios, Romanos, Arabes e Berberes", fundacao: -500, descricao: "Um dos portos mais antigos do mundo, fundado pelos fenicios.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Tangier_port.jpg/400px-Tangier_port.jpg" },
-      { nome: "Arguin (Mauritania)", subtitulo: "O entreposto portugues no Saara", lat: 20.6000, lon: -16.4500, pais: "Mauritania", continente: "Africa", categoria: "porto", tema: "Comercio de Escravos", povo: "Portugueses, Arabes e Berberes", fundacao: 1445, descricao: "Um dos primeiros entrepostos europeus na Africa Ocidental, fundado pelos portugueses em 1445.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Arguin_island.jpg/400px-Arguin_island.jpg" },
-      { nome: "Cidade do Cabo (Africa do Sul)", subtitulo: "A rota do Cabo", lat: -33.9249, lon: 18.4241, pais: "Africa do Sul", continente: "Africa", categoria: "porto", tema: "Rota Maritima", povo: "Holandeses, Ingleses, Malaios e Africanos", fundacao: 1652, descricao: "Posto de reabastecimento da Companhia Holandesa das Indias Orientais.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Cape_Town_harbor.jpg/400px-Cape_Town_harbor.jpg" },
-      { nome: "Elmina (Gana)", subtitulo: "O primeiro entreposto europeu na Africa Subsaariana", lat: 5.0877, lon: -1.3482, pais: "Gana", continente: "Africa", categoria: "porto", tema: "Comercio de Escravos", povo: "Portugueses, Holandeses e Africanos", fundacao: 1482, descricao: "Castelo de Sao Jorge da Mina, o mais importante centro de comercio de escravizados.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Elmina_Castle.jpg/400px-Elmina_Castle.jpg" },
-      { nome: "Lagos (Nigeria)", subtitulo: "O gigante da Africa Ocidental", lat: 6.5244, lon: 3.3792, pais: "Nigeria", continente: "Africa", categoria: "porto", tema: "Comercio Colonial", povo: "Iorubas, Europeus e Nigerianos", fundacao: 1470, descricao: "Principal porto da Nigeria durante o periodo colonial britanico.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Lagos_port.jpg/400px-Lagos_port.jpg" },
-      { nome: "Kilwa Kisiwani (Tanzania)", subtitulo: "A perola da costa swahili", lat: -8.9583, lon: 39.5167, pais: "Tanzania", continente: "Africa", categoria: "porto", tema: "Comercio no Oceano Indico", povo: "Suailis, Arabes e Africanos", fundacao: 900, descricao: "Importante porto da costa swahili entre os seculos IX e XVI.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Kilwa_ruins.jpg/400px-Kilwa_ruins.jpg" },
-      { nome: "Mombaca (Quenia)", subtitulo: "A fortaleza portuguesa no Indico", lat: -4.0435, lon: 39.6682, pais: "Quenia", continente: "Africa", categoria: "porto", tema: "Conflito Colonial", povo: "Suailis, Portugueses, Arabes e Africanos", fundacao: 900, descricao: "Forte Jesus, disputado entre portugueses, arabes e britanicos.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Mombasa_port.jpg/400px-Mombasa_port.jpg" },
-      { nome: "Zanzibar (Tanzania)", subtitulo: "A ilha das especiarias", lat: -6.1631, lon: 39.1912, pais: "Tanzania", continente: "Africa", categoria: "porto", tema: "Comercio de Especiarias", povo: "Arabes, Suailis, Indianos e Africanos", fundacao: 1000, descricao: "Centro do comercio de especiarias, especialmente cravo.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Zanzibar_harbor.jpg/400px-Zanzibar_harbor.jpg" },
-      { nome: "Rota do Atlantico Sul", subtitulo: "Lisboa <-> Santos", tipo: "rota", pontos: [{lat: 38.7071, lon: -9.1355}, {lat: 28.9784, lon: -13.0}, {lat: -23.9608, lon: -46.3350}], cor: "#fbbf24", descricao: "Principal rota comercial entre Portugal e o Brasil colonial.", fundacao: 1500, pais: "Portugal/Brasil", continente: "Europa/America do Sul", categoria: "rota", tema: "Comercio", povo: "Portugueses e Brasileiros", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_aereo.jpg/400px-Porto_de_Santos_aereo.jpg" },
-      { nome: "Rota do Pacifico", subtitulo: "Panama <-> Santos", tipo: "rota", pontos: [{lat: 9.3598, lon: -79.9012}, {lat: -23.9608, lon: -46.3350}], cor: "#2ecc71", descricao: "Conexao entre os oceanos Pacifico e Atlantico via Canal do Panama.", fundacao: 1914, pais: "Panama/Brasil", continente: "America Central/America do Sul", categoria: "rota", tema: "Comercio", povo: "Panamenhos e Brasileiros", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Panama_Canal_Gatun_Locks.jpg/400px-Panama_Canal_Gatun_Locks.jpg" },
-      { nome: "Rota do Mediterraneo", subtitulo: "Tanger <-> Alexandria", tipo: "rota", pontos: [{lat: 35.7595, lon: -5.8340}, {lat: 36.0, lon: 0.0}, {lat: 31.2001, lon: 29.9187}], cor: "#3498db", descricao: "Conexao entre o Atlantico e o Mar Vermelho via Mediterraneo.", fundacao: -500, pais: "Marrocos/Egito", continente: "Africa", categoria: "rota", tema: "Comercio", povo: "Fenicios, Romanos, Arabes", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg" }
+      { nome:"Carta de Piri Reis (1513)", subtitulo:"Mapa-múndi Otomano", lat:41.0082, lon:28.9784, pais:"Turquia", continente:"Europa/Ásia", categoria:"mapa", tema:"Cultura", povo:"Otomanos", fundacao:1513, descricao:"Um dos mapas mais antigos a mostrar a costa da América do Sul com notável precisão.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg" },
+      { nome:"Mapa de Cantino (1502)", subtitulo:"Planisfério português", lat:38.7071, lon:-9.1355, pais:"Portugal", continente:"Europa", categoria:"mapa", tema:"Cultura", povo:"Portugueses", fundacao:1502, descricao:"O mais antigo mapa a retratar a costa do Brasil.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg" },
+      { nome:"Veracruz (México)", subtitulo:"O porto mais antigo do México continental", lat:19.2029, lon:-96.1382, pais:"México", continente:"América do Norte", categoria:"porto", tema:"Colonização", povo:"Espanhóis e Nahuas", fundacao:1519, descricao:"Fundado por Hernán Cortés em 1519, o Porto de Veracruz foi a principal porta de entrada de mercadorias e escravizados durante o período colonial.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Puerto_de_Veracruz.jpg/400px-Puerto_de_Veracruz.jpg" },
+      { nome:"Havana (Cuba)", subtitulo:"O coração do império espanhol no Caribe", lat:23.1136, lon:-82.3666, pais:"Cuba", continente:"América do Norte", categoria:"porto", tema:"Comércio e Defesa", povo:"Espanhóis e Cubanos", fundacao:1515, descricao:"O Porto de Havana foi o ponto de encontro da Frota das Índias, sendo o porto mais estratégico do Caribe durante os séculos XVI-XVIII.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Havana_harbor.jpg/400px-Havana_harbor.jpg" },
+      { nome:"Nova Orleans (EUA)", subtitulo:"A porta de entrada do Mississippi", lat:29.9511, lon:-90.0715, pais:"Estados Unidos", continente:"América do Norte", categoria:"porto", tema:"Comércio Fluvial", povo:"Franceses, Africanos e Americanos", fundacao:1718, descricao:"Crucial para o comércio de algodão e escravizados no século XIX.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/New_Orleans_harbor.jpg/400px-New_Orleans_harbor.jpg" },
+      { nome:"Porto Bello (Panamá)", subtitulo:"O porto das feiras de ouro", lat:9.5533, lon:-79.6531, pais:"Panamá", continente:"América Central", categoria:"porto", tema:"Comércio Colonial", povo:"Espanhóis e Emberá", fundacao:1597, descricao:"Principal porto espanhol no Caribe para o comércio de ouro e prata vindos do Peru.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Portobelo_Panama.jpg/400px-Portobelo_Panama.jpg" },
+      { nome:"Recife (Brasil)", subtitulo:"O 'Veneza Brasileira' e porto do açúcar", lat:-8.0476, lon:-34.8770, pais:"Brasil", continente:"América do Sul", categoria:"porto", tema:"Economia Colonial", povo:"Portugueses, Holandeses e Africanos", fundacao:1537, descricao:"Centro da economia açucareira do Nordeste brasileiro, ocupado pelos holandeses entre 1630-1654.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Recife_port.jpg/400px-Recife_port.jpg" },
+      { nome:"Cartagena (Colômbia)", subtitulo:"A fortaleza do Caribe", lat:10.3910, lon:-75.4824, pais:"Colômbia", continente:"América do Sul", categoria:"porto", tema:"Defesa e Comércio", povo:"Espanhóis, Africanos e Indígenas", fundacao:1533, descricao:"Principal porto da costa norte da América do Sul para o comércio de escravizados e ouro.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cartagena_harbor.jpg/400px-Cartagena_harbor.jpg" },
+      { nome:"Buenos Aires (Argentina)", subtitulo:"A porta do Prata", lat:-34.6037, lon:-58.3816, pais:"Argentina", continente:"América do Sul", categoria:"porto", tema:"Comércio e Imigração", povo:"Espanhóis, Italianos e Argentinos", fundacao:1536, descricao:"Principal escoadouro da prata de Potosí e centro da imigração europeia no século XIX.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Buenos_Aires_port.jpg/400px-Buenos_Aires_port.jpg" },
+      { nome:"Callao (Peru)", subtitulo:"O porto do Vice-Reino do Peru", lat:-12.0658, lon:-77.1500, pais:"Peru", continente:"América do Sul", categoria:"porto", tema:"Comércio de Prata", povo:"Espanhóis, Quechuas e Africanos", fundacao:1537, descricao:"Principal porto do Vice-Reino do Peru, escoando a prata de Potosí.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Callao_port.jpg/400px-Callao_port.jpg" },
+      { nome:"Santos (Brasil)", subtitulo:"O maior complexo portuário da América Latina", lat:-23.9608, lon:-46.3350, pais:"Brasil", continente:"América do Sul", categoria:"porto", tema:"Economia", povo:"Brasileiros", fundacao:1892, descricao:"Maior complexo portuário da América Latina, fundamental para a economia cafeeira.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg" },
+      { nome:"Alexandria (Egito)", subtitulo:"O farol do mundo antigo", lat:31.2001, lon:29.9187, pais:"Egito", continente:"África", categoria:"porto", tema:"Antiguidade", povo:"Gregos, Romanos e Egípcios", fundacao:-331, descricao:"Fundado por Alexandre, o Grande em 331 a.C., foi o maior porto do mundo antigo.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg" },
+      { nome:"Tânger (Marrocos)", subtitulo:"A porta entre dois continentes", lat:35.7595, lon:-5.8340, pais:"Marrocos", continente:"África", categoria:"porto", tema:"Comércio Mediterrâneo", povo:"Fenícios, Romanos, Árabes e Berberes", fundacao:-500, descricao:"Um dos portos mais antigos do mundo, fundado pelos fenícios.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Tangier_port.jpg/400px-Tangier_port.jpg" },
+      { nome:"Arguin (Mauritânia)", subtitulo:"O entreposto português no Saara", lat:20.6000, lon:-16.4500, pais:"Mauritânia", continente:"África", categoria:"porto", tema:"Comércio de Escravos", povo:"Portugueses, Árabes e Berberes", fundacao:1445, descricao:"Um dos primeiros entrepostos europeus na África Ocidental, fundado pelos portugueses em 1445.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Arguin_island.jpg/400px-Arguin_island.jpg" },
+      { nome:"Cidade do Cabo (África do Sul)", subtitulo:"A rota do Cabo", lat:-33.9249, lon:18.4241, pais:"África do Sul", continente:"África", categoria:"porto", tema:"Rota Marítima", povo:"Holandeses, Ingleses, Malaios e Africanos", fundacao:1652, descricao:"Posto de reabastecimento da Companhia Holandesa das Índias Orientais.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Cape_Town_harbor.jpg/400px-Cape_Town_harbor.jpg" },
+      { nome:"Elmina (Gana)", subtitulo:"O primeiro entreposto europeu na África Subsaariana", lat:5.0877, lon:-1.3482, pais:"Gana", continente:"África", categoria:"porto", tema:"Comércio de Escravos", povo:"Portugueses, Holandeses e Africanos", fundacao:1482, descricao:"Castelo de São Jorge da Mina, o mais importante centro de comércio de escravizados.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Elmina_Castle.jpg/400px-Elmina_Castle.jpg" },
+      { nome:"Lagos (Nigéria)", subtitulo:"O gigante da África Ocidental", lat:6.5244, lon:3.3792, pais:"Nigéria", continente:"África", categoria:"porto", tema:"Comércio Colonial", povo:"Iorubás, Europeus e Nigerianos", fundacao:1470, descricao:"Principal porto da Nigéria durante o período colonial britânico.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Lagos_port.jpg/400px-Lagos_port.jpg" },
+      { nome:"Kilwa Kisiwani (Tanzânia)", subtitulo:"A pérola da costa swahili", lat:-8.9583, lon:39.5167, pais:"Tanzânia", continente:"África", categoria:"porto", tema:"Comércio no Oceano Índico", povo:"Suaílis, Árabes e Africanos", fundacao:900, descricao:"Importante porto da costa swahili entre os séculos IX e XVI.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Kilwa_ruins.jpg/400px-Kilwa_ruins.jpg" },
+      { nome:"Mombaça (Quênia)", subtitulo:"A fortaleza portuguesa no Índico", lat:-4.0435, lon:39.6682, pais:"Quênia", continente:"África", categoria:"porto", tema:"Conflito Colonial", povo:"Suaílis, Portugueses, Árabes e Africanos", fundacao:900, descricao:"Forte Jesus, disputado entre portugueses, árabes e britânicos.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Mombasa_port.jpg/400px-Mombasa_port.jpg" },
+      { nome:"Zanzibar (Tanzânia)", subtitulo:"A ilha das especiarias", lat:-6.1631, lon:39.1912, pais:"Tanzânia", continente:"África", categoria:"porto", tema:"Comércio de Especiarias", povo:"Árabes, Suaílis, Indianos e Africanos", fundacao:1000, descricao:"Centro do comércio de especiarias, especialmente cravo.", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Zanzibar_harbor.jpg/400px-Zanzibar_harbor.jpg" },
+      { nome:"Rota do Atlântico Sul", subtitulo:"Lisboa ↔ Santos", tipo:"rota", pontos:[{lat:38.7071,lon:-9.1355},{lat:28.9784,lon:-13.0},{lat:-23.9608,lon:-46.3350}], cor:"#fbbf24", descricao:"Principal rota comercial entre Portugal e o Brasil colonial.", fundacao:1500, pais:"Portugal/Brasil", continente:"Europa/América do Sul", categoria:"rota", tema:"Comércio", povo:"Portugueses e Brasileiros", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg" },
+      { nome:"Rota do Pacífico", subtitulo:"Panamá ↔ Santos", tipo:"rota", pontos:[{lat:9.3598,lon:-79.9012},{lat:-23.9608,lon:-46.3350}], cor:"#2ecc71", descricao:"Conexão entre os oceanos Pacífico e Atlântico via Canal do Panamá.", fundacao:1914, pais:"Panamá/Brasil", continente:"América Central/América do Sul", categoria:"rota", tema:"Comércio", povo:"Panamenhos e Brasileiros", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Panama_Canal_Gatun_Locks.jpg/400px-Panama_Canal_Gatun_Locks.jpg" },
+      { nome:"Rota do Mediterrâneo", subtitulo:"Tânger ↔ Alexandria", tipo:"rota", pontos:[{lat:35.7595,lon:-5.8340},{lat:36.0,lon:0.0},{lat:31.2001,lon:29.9187}], cor:"#3498db", descricao:"Conexão entre o Atlântico e o Mar Vermelho via Mediterrâneo.", fundacao:-500, pais:"Marrocos/Egito", continente:"África", categoria:"rota", tema:"Comércio", povo:"Fenícios, Romanos, Árabes", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg" }
     ];
 
     const app = {
       data: DADOS,
-      active: { categoria: 'todos', tema: 'todos', povo: 'todos' },
+      active: { categoria:'todos', tema:'todos', povo:'todos' },
       search: '',
       startYear: -2000,
       endYear: 2026,
@@ -250,15 +249,15 @@
       },
 
       initMap() {
+        // Estilo próprio que funciona 100% — OSM raster como base garantida
         const style = {
           version: 8,
-          glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
           sources: {
             osm: {
               type: 'raster',
               tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
               tileSize: 256,
-              attribution: 'OpenStreetMap contributors'
+              attribution: '© OpenStreetMap contributors'
             }
           },
           layers: [{
@@ -281,23 +280,33 @@
         this.map.addControl(new maplibregl.NavigationControl(), 'top-right');
         this.map.addControl(new maplibregl.FullscreenControl(), 'top-right');
 
+        // Quando o mapa carregar, adiciona os dados do Atlas
         this.map.on('load', () => {
-          console.log('Mapa carregado');
+          console.log('✅ Mapa carregado');
           this.addAtlasLayers();
         });
 
+        // Clique nos pontos
         this.map.on('click', (e) => {
-          const features = this.map.queryRenderedFeatures(e.point, { layers: ['atlas-points'] });
+          const features = this.map.queryRenderedFeatures(e.point, {
+            layers: ['atlas-points']
+          });
           if (features && features.length) {
-            this.flyToByName(features[0].properties.nome);
+            const nome = features[0].properties.nome;
+            this.flyToByName(nome);
           }
         });
 
-        this.map.on('mouseenter', 'atlas-points', () => { this.map.getCanvas().style.cursor = 'pointer'; });
-        this.map.on('mouseleave', 'atlas-points', () => { this.map.getCanvas().style.cursor = ''; });
+        this.map.on('mouseenter', 'atlas-points', () => {
+          this.map.getCanvas().style.cursor = 'pointer';
+        });
+        this.map.on('mouseleave', 'atlas-points', () => {
+          this.map.getCanvas().style.cursor = '';
+        });
       },
 
       addAtlasLayers() {
+        // 1. Pontos (portos e mapas)
         const pontos = this.data.filter(d => d.tipo !== 'rota' && d.lat != null && d.lon != null);
         const geojson = {
           type: 'FeatureCollection',
@@ -315,6 +324,7 @@
 
         this.map.addSource('atlas-source', { type: 'geojson', data: geojson });
 
+        // Halo (brilho ao redor)
         this.map.addLayer({
           id: 'atlas-points-glow',
           type: 'circle',
@@ -326,6 +336,7 @@
           }
         });
 
+        // Ponto principal
         this.map.addLayer({
           id: 'atlas-points',
           type: 'circle',
@@ -338,40 +349,76 @@
           }
         });
 
+        // Rótulos dos pontos
+        this.map.addLayer({
+          id: 'atlas-labels',
+          type: 'symbol',
+          source: 'atlas-source',
+          layout: {
+            'text-field': ['get', 'nome'],
+            'text-size': 11,
+            'text-offset': [0, 1.3],
+            'text-anchor': 'top',
+            'text-allow-overlap': false,
+            'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular']
+          },
+          paint: {
+            'text-color': '#e2e8f0',
+            'text-halo-color': '#0f172a',
+            'text-halo-width': 2
+          }
+        });
+
+        // 2. Rotas (linhas tracejadas)
         const rotas = this.data.filter(d => d.tipo === 'rota' && d.pontos && d.pontos.length >= 2);
         rotas.forEach((rota, idx) => {
           const id = 'rota-src-' + idx;
           const coords = rota.pontos.map(p => [p.lon, p.lat]);
+
           this.map.addSource(id, {
             type: 'geojson',
-            data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } }
+            data: {
+              type: 'Feature',
+              geometry: { type: 'LineString', coordinates: coords }
+            }
           });
+
           this.map.addLayer({
             id: 'rota-glow-' + idx,
             type: 'line',
             source: id,
             layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': rota.cor || '#fbbf24', 'line-width': 5, 'line-opacity': 0.2 }
+            paint: {
+              'line-color': rota.cor || '#fbbf24',
+              'line-width': 5,
+              'line-opacity': 0.2
+            }
           });
+
           this.map.addLayer({
             id: 'rota-line-' + idx,
             type: 'line',
             source: id,
             layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': rota.cor || '#fbbf24', 'line-width': 2, 'line-dasharray': [4, 3], 'line-opacity': 0.9 }
+            paint: {
+              'line-color': rota.cor || '#fbbf24',
+              'line-width': 2,
+              'line-dasharray': [4, 3],
+              'line-opacity': 0.9
+            }
           });
         });
 
-        console.log('Camadas adicionadas:', pontos.length, 'pontos,', rotas.length, 'rotas');
+        console.log('✅ Camadas do Atlas adicionadas:', pontos.length, 'pontos,', rotas.length, 'rotas');
       },
 
       updateAtlasPoints(filteredItems) {
         if (!this.map || !this.map.getSource('atlas-source')) return;
-        const pontos = this.data.filter(d => d.tipo !== 'rota' && d.lat != null && d.lon != null);
         const nomesVisiveis = new Set(filteredItems.filter(d => d.tipo !== 'rota').map(d => d.nome));
+        const pontos = this.data.filter(d => d.tipo !== 'rota' && d.lat != null && d.lon != null);
         const geojson = {
           type: 'FeatureCollection',
-          features: pontos.filter(p => nomesVisiveis.has(p.nome)).map(p => ({
+          features: pontos.map(p => ({
             type: 'Feature',
             geometry: { type: 'Point', coordinates: [p.lon, p.lat] },
             properties: {
@@ -400,23 +447,23 @@
 
       flyTo(item) {
         let lat, lon, zoom;
-        if (item.tipo === 'rota' && item.pontos && item.pontos.length) {
+        if (item.tipo === 'rota' && item.pontos?.length) {
           lat = item.pontos[0].lat; lon = item.pontos[0].lon; zoom = 4.5;
         } else {
           lat = item.lat; lon = item.lon;
           zoom = item.categoria === 'mapa' ? 4 : 6;
         }
-        this.map.flyTo({ center: [lon, lat], zoom: zoom, duration: 1800 });
+        this.map.flyTo({ center: [lon, lat], zoom, duration: 1800 });
         this.openDetail(item);
 
         if (this.popup) this.popup.remove();
         this.popup = new maplibregl.Popup({ offset: 15, className: 'ohm-popup' })
           .setLngLat([lon, lat])
-          .setHTML(
-            '<div class="popup-title">' + item.nome + '</div>' +
-            '<div class="popup-sub">' + (item.subtitulo || '') + '</div>' +
-            '<button class="popup-btn" onclick="app.openDetailByName(' + JSON.stringify(item.nome) + ')">Ver detalhes</button>'
-          )
+          .setHTML(`
+            <div class="popup-title">${item.nome}</div>
+            <div class="popup-sub">${item.subtitulo||''}</div>
+            <button class="popup-btn" onclick="app.openDetailByName('${item.nome.replace(/'/g,"\'")}')">Ver detalhes</button>
+          `)
           .addTo(this.map);
       },
 
@@ -435,10 +482,10 @@
         badge.style.color = CORES[item.categoria] || '#38bdf8';
         document.getElementById('d-title').textContent = item.nome;
         document.getElementById('d-sub').textContent = item.subtitulo || '';
-        const ano = item.fundacao < 0 ? Math.abs(item.fundacao) + ' A.C.' : item.fundacao + ' D.C.';
+        const ano = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
         document.getElementById('d-ano').textContent = ano;
-        document.getElementById('d-local').textContent = (item.pais || '') + (item.continente ? ', ' + item.continente : '');
-        document.getElementById('d-coords').textContent = item.tipo === 'rota' ? (item.pontos ? item.pontos.length : 0) + ' pontos' : (item.lat ? item.lat.toFixed(4) : '') + ', ' + (item.lon ? item.lon.toFixed(4) : '');
+        document.getElementById('d-local').textContent = `${item.pais||''}${item.continente?', '+item.continente:''}`;
+        document.getElementById('d-coords').textContent = item.tipo==='rota' ? `${item.pontos?.length||0} pontos` : `${item.lat?.toFixed(4)||''}°, ${item.lon?.toFixed(4)||''}°`;
         document.getElementById('d-povo').textContent = item.povo || 'Desconhecido';
         document.getElementById('d-desc').textContent = item.descricao || '';
         p.classList.add('open');
@@ -451,28 +498,28 @@
 
       renderChips() {
         const mk = (container, arr, key) => {
-          const all = ['todos'].concat(Array.from(new Set(this.data.map(d => d[key]).filter(Boolean))));
+          const all = ['todos', ...new Set(this.data.map(d => d[key]).filter(Boolean))];
           container.innerHTML = all.map(v => {
-            const label = v === 'todos' ? 'Todos' : (LABELS[v] || v);
-            return '<span class="chip ' + (v === 'todos' ? 'active' : '') + '" data-key="' + key + '" data-val="' + v + '">' + label + '</span>';
+            const label = v==='todos' ? 'Todos' : (LABELS[v] || v);
+            return `<span class="chip ${v==='todos'?'active':''}" data-key="${key}" data-val="${v}">${label}</span>`;
           }).join('');
         };
-        mk(document.getElementById('chips-cat'), Array.from(new Set(this.data.map(d => d.categoria))), 'categoria');
-        mk(document.getElementById('chips-tema'), Array.from(new Set(this.data.map(d => d.tema))), 'tema');
-        mk(document.getElementById('chips-povo'), Array.from(new Set(this.data.map(d => d.povo))), 'povo');
+        mk(document.getElementById('chips-cat'), [...new Set(this.data.map(d=>d.categoria))], 'categoria');
+        mk(document.getElementById('chips-tema'), [...new Set(this.data.map(d=>d.tema))], 'tema');
+        mk(document.getElementById('chips-povo'), [...new Set(this.data.map(d=>d.povo))], 'povo');
       },
 
       applyFilters() {
         let list = this.data.filter(d => {
-          const mc = this.active.categoria === 'todos' || d.categoria === this.active.categoria;
-          const mt = this.active.tema === 'todos' || d.tema === this.active.tema;
-          const mp = this.active.povo === 'todos' || d.povo === this.active.povo;
+          const mc = this.active.categoria==='todos' || d.categoria===this.active.categoria;
+          const mt = this.active.tema==='todos' || d.tema===this.active.tema;
+          const mp = this.active.povo==='todos' || d.povo===this.active.povo;
           const ma = d.fundacao >= this.startYear && d.fundacao <= this.endYear;
           return mc && mt && mp && ma;
         });
         if (this.search) {
           const q = this.search.toLowerCase();
-          list = list.filter(d => (d.nome + d.subtitulo + d.descricao + d.povo + d.pais).toLowerCase().includes(q));
+          list = list.filter(d => (d.nome+d.subtitulo+d.descricao+d.povo+d.pais).toLowerCase().includes(q));
         }
         this.renderCards(list);
         document.getElementById('count-badge').textContent = list.length;
@@ -487,16 +534,20 @@
         }
         container.innerHTML = list.map(item => {
           const cor = CORES[item.categoria] || '#38bdf8';
-          const ano = item.fundacao < 0 ? Math.abs(item.fundacao) + ' A.C.' : item.fundacao + ' D.C.';
-          const icon = item.tipo === 'rota' ? '<i class="fa-solid fa-ship" style="margin-right:4px;"></i>' : '';
-          return '<div class="card" style="--c:' + cor + '" onclick="app.flyToByName(' + JSON.stringify(item.nome) + ')">' +
-            '<div class="card-thumb">' + (item.coverImage ? '<img src="' + item.coverImage + '" alt="" onerror="this.style.display='none'">' : '<i class="fa-solid fa-image no-img"></i>') + '</div>' +
-            '<div class="card-body">' +
-            '<div class="card-year">' + ano + '</div>' +
-            '<div class="card-title">' + icon + item.nome + '</div>' +
-            '<div class="card-sub">' + (item.subtitulo || '') + '</div>' +
-            '<div class="card-desc">' + (item.descricao || '').substring(0, 80) + ((item.descricao || '').length > 80 ? '...' : '') + '</div>' +
-            '</div></div>';
+          const ano = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
+          const icon = item.tipo==='rota' ? '<i class="fa-solid fa-ship" style="margin-right:4px;"></i>' : '';
+          const img = item.coverImage || '';
+          return `
+            <div class="card" style="--c:${cor}" onclick="app.flyToByName('${item.nome.replace(/'/g,"\'")}')">
+              <div class="card-thumb">${img?`<img src="${img}" alt="" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fa-solid fa-image no-img\'></i>'">`:'<i class="fa-solid fa-image no-img"></i>'}</div>
+              <div class="card-body">
+                <div class="card-year">${ano}</div>
+                <div class="card-title">${icon}${item.nome}</div>
+                <div class="card-sub">${item.subtitulo||''}</div>
+                <div class="card-desc">${(item.descricao||'').substring(0,80)}${(item.descricao||'').length>80?'...':''}</div>
+              </div>
+            </div>
+          `;
         }).join('');
       },
 
@@ -532,7 +583,7 @@
         });
 
         document.getElementById('btnCloseDetail').addEventListener('click', () => this.closeDetail());
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') this.closeDetail(); });
+        document.addEventListener('keydown', e => { if (e.key==='Escape') this.closeDetail(); });
 
         document.getElementById('btnReset').addEventListener('click', e => {
           e.preventDefault();
