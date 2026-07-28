@@ -12,7 +12,6 @@
     html, body { height:100%; width:100%; overflow:hidden; font-family:'Segoe UI',system-ui,sans-serif; background:#0f172a; color:#e2e8f0; }
     #app { display:flex; flex-direction:column; height:100vh; height:100dvh; }
 
-    /* TOPBAR */
     .topbar {
       display:flex; align-items:center; justify-content:space-between;
       padding:8px 12px; height:56px; background:#1e293b; border-bottom:1px solid #334155;
@@ -33,11 +32,9 @@
     .search-box i { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:0.75rem; }
     #searchInput { width:100%; padding:6px 10px 6px 28px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#e2e8f0; font-size:0.8rem; }
 
-    /* MAIN */
     .main-area { display:flex; flex:1; overflow:hidden; position:relative; }
     #map { flex:1; height:100%; background:#0f172a; }
 
-    /* SIDEBAR */
     #sidebar {
       width:340px; background:#1e293b; border-left:1px solid #334155;
       display:flex; flex-direction:column; overflow:hidden; transition:0.3s;
@@ -66,15 +63,15 @@
       border-left:3px solid var(--c,#38bdf8); cursor:pointer; transition:0.2s;
     }
     .card:hover { background:#475569; transform:translateX(2px); }
-    .card-thumb { width:48px; height:48px; border-radius:4px; background:#1e293b; flex-shrink:0; overflow:hidden; }
+    .card-thumb { width:48px; height:48px; border-radius:4px; background:#1e293b; flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center; }
     .card-thumb img { width:100%; height:100%; object-fit:cover; }
+    .card-thumb .no-img { color:#64748b; font-size:1.2rem; }
     .card-body { flex:1; min-width:0; }
     .card-year { font-size:0.6rem; color:#38bdf8; font-weight:600; }
     .card-title { font-size:0.8rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .card-sub { font-size:0.65rem; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .card-desc { font-size:0.6rem; color:#64748b; margin-top:2px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
-    /* POPUP CUSTOMIZADO */
     .ohm-popup .maplibregl-popup-content {
       background:#1e293b; color:#e2e8f0; border:1px solid #334155; border-radius:8px;
       padding:10px; font-family:'Segoe UI',system-ui,sans-serif; font-size:0.8rem; max-width:220px;
@@ -87,7 +84,6 @@
       border:none; border-radius:4px; font-size:0.7rem; font-weight:600; cursor:pointer; text-align:center;
     }
 
-    /* DETAIL PANEL */
     #detail-panel {
       position:absolute; top:0; right:0; bottom:0; width:360px; max-width:90vw;
       background:#1e293b; border-left:1px solid #334155;
@@ -109,7 +105,6 @@
     .meta-value { font-weight:600; font-size:0.8rem; }
     .detail-desc { font-size:0.85rem; line-height:1.5; color:#cbd5e1; text-align:justify; }
 
-    /* LEGENDA */
     .legend {
       position:absolute; bottom:12px; left:12px; background:rgba(15,23,42,0.9);
       border:1px solid #334155; border-radius:8px; padding:8px 12px; z-index:10;
@@ -118,7 +113,6 @@
     .legend-item { display:flex; align-items:center; gap:6px; margin:3px 0; }
     .legend-dot { width:10px; height:10px; border-radius:50%; }
 
-    /* MOBILE */
     @media (max-width:768px) {
       .topbar { height:48px; padding:4px 8px; }
       .topbar-logo { font-size:0.9rem; }
@@ -133,7 +127,6 @@
       .legend { bottom:auto; top:60px; left:8px; font-size:0.6rem; padding:6px 8px; }
     }
   </style>
-<base target="_blank">
 </head>
 <body>
   <div id="app">
@@ -148,7 +141,7 @@
       </div>
       <div class="search-box">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="searchInput" placeholder="Buscar porto, rota...">
+        <input type="text" id="searchInput" placeholder="Buscar...">
       </div>
     </header>
 
@@ -187,7 +180,7 @@
 
       <aside id="detail-panel">
         <div class="detail-cover">
-          <img id="d-cover" src="" alt="">
+          <img id="d-cover" src="" alt="" onerror="this.style.display='none'">
           <div class="overlay"></div>
           <button class="detail-close" id="btnCloseDetail"><i class="fa-solid fa-xmark"></i></button>
         </div>
@@ -208,7 +201,6 @@
   </div>
 
   <script>
-    // ===== DADOS DO ATLAS =====
     const CORES = { mapa:'#a78bfa', porto:'#38bdf8', rota:'#fbbf24' };
     const LABELS = { mapa:'Mapa', porto:'Porto', rota:'Rota Comercial' };
 
@@ -238,7 +230,6 @@
       { nome:"Rota do Mediterrâneo", subtitulo:"Tânger ↔ Alexandria", tipo:"rota", pontos:[{lat:35.7595,lon:-5.8340},{lat:36.0,lon:0.0},{lat:31.2001,lon:29.9187}], cor:"#3498db", descricao:"Conexão entre o Atlântico e o Mar Vermelho via Mediterrâneo.", fundacao:-500, pais:"Marrocos/Egito", continente:"África", categoria:"rota", tema:"Comércio", povo:"Fenícios, Romanos, Árabes", coverImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg" }
     ];
 
-    // ===== APLICAÇÃO =====
     const app = {
       data: DADOS,
       active: { categoria:'todos', tema:'todos', povo:'todos' },
@@ -258,37 +249,54 @@
       },
 
       initMap() {
-        // Estilo oficial do OpenHistoricalMap para MapLibre
-        const OHM_STYLE = 'https://www.openhistoricalmap.org/map-styles/main/main.json';
+        // Estilo próprio que funciona 100% — OSM raster como base garantida
+        const style = {
+          version: 8,
+          sources: {
+            osm: {
+              type: 'raster',
+              tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+              tileSize: 256,
+              attribution: '© OpenStreetMap contributors'
+            }
+          },
+          layers: [{
+            id: 'osm-base',
+            type: 'raster',
+            source: 'osm',
+            minzoom: 0,
+            maxzoom: 19
+          }]
+        };
 
         this.map = new maplibregl.Map({
           container: 'map',
-          style: OHM_STYLE,
+          style: style,
           center: [-10, 10],
           zoom: 2.2,
-          projection: 'mercator',
-          attributionControl: true
+          projection: 'mercator'
         });
 
         this.map.addControl(new maplibregl.NavigationControl(), 'top-right');
+        this.map.addControl(new maplibregl.FullscreenControl(), 'top-right');
 
+        // Quando o mapa carregar, adiciona os dados do Atlas
         this.map.on('load', () => {
+          console.log('✅ Mapa carregado');
           this.addAtlasLayers();
-          this.setMapDate(this.currentYear);
         });
 
-        // Fecha popup ao clicar no mapa
+        // Clique nos pontos
         this.map.on('click', (e) => {
           const features = this.map.queryRenderedFeatures(e.point, {
-            layers: ['atlas-points', 'atlas-points-glow']
+            layers: ['atlas-points']
           });
-          if (features.length) {
+          if (features && features.length) {
             const nome = features[0].properties.nome;
             this.flyToByName(nome);
           }
         });
 
-        // Cursor pointer ao passar sobre pontos
         this.map.on('mouseenter', 'atlas-points', () => {
           this.map.getCanvas().style.cursor = 'pointer';
         });
@@ -297,8 +305,8 @@
         });
       },
 
-      // Adiciona camadas GeoJSON dos portos/mapas/rotas
       addAtlasLayers() {
+        // 1. Pontos (portos e mapas)
         const pontos = this.data.filter(d => d.tipo !== 'rota' && d.lat != null && d.lon != null);
         const geojson = {
           type: 'FeatureCollection',
@@ -309,27 +317,22 @@
               nome: p.nome,
               subtitulo: p.subtitulo || '',
               categoria: p.categoria,
-              cor: CORES[p.categoria] || '#38bdf8',
-              fundacao: p.fundacao
+              cor: CORES[p.categoria] || '#38bdf8'
             }
           }))
         };
 
-        this.map.addSource('atlas-source', {
-          type: 'geojson',
-          data: geojson
-        });
+        this.map.addSource('atlas-source', { type: 'geojson', data: geojson });
 
-        // Glow (halo)
+        // Halo (brilho ao redor)
         this.map.addLayer({
           id: 'atlas-points-glow',
           type: 'circle',
           source: 'atlas-source',
           paint: {
-            'circle-radius': 18,
+            'circle-radius': 16,
             'circle-color': ['get', 'cor'],
-            'circle-opacity': 0.2,
-            'circle-stroke-width': 0
+            'circle-opacity': 0.25
           }
         });
 
@@ -339,26 +342,25 @@
           type: 'circle',
           source: 'atlas-source',
           paint: {
-            'circle-radius': 8,
+            'circle-radius': 7,
             'circle-color': ['get', 'cor'],
             'circle-stroke-width': 2,
             'circle-stroke-color': '#ffffff'
           }
         });
 
-        // Rótulos
+        // Rótulos dos pontos
         this.map.addLayer({
           id: 'atlas-labels',
           type: 'symbol',
           source: 'atlas-source',
           layout: {
             'text-field': ['get', 'nome'],
-            'text-font': ['Noto Sans Regular'],
             'text-size': 11,
-            'text-offset': [0, 1.2],
+            'text-offset': [0, 1.3],
             'text-anchor': 'top',
             'text-allow-overlap': false,
-            'text-ignore-placement': false
+            'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular']
           },
           paint: {
             'text-color': '#e2e8f0',
@@ -367,11 +369,12 @@
           }
         });
 
-        // Rotas (linhas)
+        // 2. Rotas (linhas tracejadas)
         const rotas = this.data.filter(d => d.tipo === 'rota' && d.pontos && d.pontos.length >= 2);
         rotas.forEach((rota, idx) => {
-          const id = 'rota-' + idx;
+          const id = 'rota-src-' + idx;
           const coords = rota.pontos.map(p => [p.lon, p.lat]);
+
           this.map.addSource(id, {
             type: 'geojson',
             data: {
@@ -379,56 +382,34 @@
               geometry: { type: 'LineString', coordinates: coords }
             }
           });
-          this.map.addLayer({
-            id: id + '-line',
-            type: 'line',
-            source: id,
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: {
-              'line-color': rota.cor || '#fbbf24',
-              'line-width': 2.5,
-              'line-dasharray': [4, 3],
-              'line-opacity': 0.85
-            }
-          });
-          this.map.addLayer({
-            id: id + '-glow',
-            type: 'line',
-            source: id,
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: {
-              'line-color': rota.cor || '#fbbf24',
-              'line-width': 6,
-              'line-dasharray': [4, 3],
-              'line-opacity': 0.15
-            }
-          });
-        });
-      },
 
-      // Atualiza a data do OHM filtrando camadas por start_date/end_date
-      setMapDate(year) {
-        if (!this.map || !this.map.isStyleLoaded()) return;
-        const dateStr = year + '-01-01';
-        // O OHM usa filtros com propriedades start_date e end_date.
-        // Vamos tentar ajustar todos os filtros de camadas que tenham source-layer.
-        const layers = this.map.getStyle().layers;
-        if (!layers) return;
-        layers.forEach(layer => {
-          if (!layer['source-layer']) return;
-          try {
-            const currentFilter = this.map.getFilter(layer.id);
-            if (!currentFilter) return;
-            // Se já tem filtro de data, substitui; senão, deixa como está
-            // Essa é uma simplificação — o OHM style já vem com filtros de data
-            // que são controlados pelo timeslider oficial.
-          } catch(e) {}
+          this.map.addLayer({
+            id: 'rota-glow-' + idx,
+            type: 'line',
+            source: id,
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: {
+              'line-color': rota.cor || '#fbbf24',
+              'line-width': 5,
+              'line-opacity': 0.2
+            }
+          });
+
+          this.map.addLayer({
+            id: 'rota-line-' + idx,
+            type: 'line',
+            source: id,
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: {
+              'line-color': rota.cor || '#fbbf24',
+              'line-width': 2,
+              'line-dasharray': [4, 3],
+              'line-opacity': 0.9
+            }
+          });
         });
-        // Fallback: recarrega o style com date na URL não funciona no MapLibre.
-        // Para um controle real de data no OHM via MapLibre, o ideal é usar
-        // o plugin maplibre-gl-dates. Sem ele, o mapa mostra o default.
-        // Como estamos usando o embed OHM antes, aqui mantemos o mapa histórico
-        // e filtramos apenas os pontos do Atlas por ano.
+
+        console.log('✅ Camadas do Atlas adicionadas:', pontos.length, 'pontos,', rotas.length, 'rotas');
       },
 
       updateAtlasPoints(filteredItems) {
@@ -444,10 +425,7 @@
               nome: p.nome,
               subtitulo: p.subtitulo || '',
               categoria: p.categoria,
-              cor: CORES[p.categoria] || '#38bdf8',
-              fundacao: p.fundacao,
-              // Propriedade para controlar visibilidade
-              visible: nomesVisiveis.has(p.nome) ? 1 : 0
+              cor: CORES[p.categoria] || '#38bdf8'
             }
           }))
         };
@@ -458,7 +436,6 @@
         const y = parseInt(this.yearInput.value, 10) + delta;
         this.yearInput.value = y;
         this.currentYear = y;
-        this.setMapDate(y);
         this.applyFilters();
       },
 
@@ -479,7 +456,6 @@
         this.map.flyTo({ center: [lon, lat], zoom, duration: 1800 });
         this.openDetail(item);
 
-        // Popup temporário no mapa
         if (this.popup) this.popup.remove();
         this.popup = new maplibregl.Popup({ offset: 15, className: 'ohm-popup' })
           .setLngLat([lon, lat])
@@ -498,7 +474,9 @@
 
       openDetail(item) {
         const p = document.getElementById('detail-panel');
-        document.getElementById('d-cover').src = item.coverImage || '';
+        const cover = document.getElementById('d-cover');
+        cover.style.display = '';
+        cover.src = item.coverImage || '';
         const badge = document.getElementById('d-badge');
         badge.textContent = LABELS[item.categoria] || item.categoria;
         badge.style.color = CORES[item.categoria] || '#38bdf8';
@@ -561,7 +539,7 @@
           const img = item.coverImage || '';
           return `
             <div class="card" style="--c:${cor}" onclick="app.flyToByName('${item.nome.replace(/'/g,"\'")}')">
-              <div class="card-thumb">${img?`<img src="${img}" alt="">`:''}</div>
+              <div class="card-thumb">${img?`<img src="${img}" alt="" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fa-solid fa-image no-img\'></i>'">`:'<i class="fa-solid fa-image no-img"></i>'}</div>
               <div class="card-body">
                 <div class="card-year">${ano}</div>
                 <div class="card-title">${icon}${item.nome}</div>
@@ -601,7 +579,7 @@
 
         this.yearInput.addEventListener('change', () => {
           const y = parseInt(this.yearInput.value, 10);
-          if (!isNaN(y)) { this.currentYear = y; this.setMapDate(y); this.applyFilters(); }
+          if (!isNaN(y)) { this.currentYear = y; this.applyFilters(); }
         });
 
         document.getElementById('btnCloseDetail').addEventListener('click', () => this.closeDetail());
